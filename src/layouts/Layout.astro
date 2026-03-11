@@ -1,19 +1,27 @@
+---
+// 1. 必须引入这个全局 CSS 文件，Tailwind 才能生效
+import '../styles/global.css';
+
+// 2. 建议定义一个 title 变量，方便不同页面显示
+const { title = "Retrograde Resonance" } = Astro.props;
+---
+
 <!doctype html>
-<html lang="en">
+<html lang="zh">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
-	<body>
+	<body class="bg-slate-950 text-slate-300 antialiased selection:bg-indigo-500/30">
 		<slot />
 	</body>
 </html>
 
 <style>
+	/* 你可以保留原来的基础设置，但大部分样式现在可以用 Tailwind 处理了 */
 	html,
 	body {
 		margin: 0;

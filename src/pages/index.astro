@@ -1,11 +1,60 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const posts = await getCollection('posts');
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Hero -->
+    <section class="py-12 border-b border-slate-800">
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
+        探索数学逻辑与 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">AI 算法</span> 的共振点。
+      </h1>
+      <p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+        悉尼科技大学（UTS）的 IT 硕士研究。这里记录了我对算法理论、模型分析以及 AI 落地（如 RAG 系统）的思考。
+      </p>
+    </section>
+
+    <!-- Projects -->
+    <section class="py-16 border-b border-slate-800">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-8">Selected Research & Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="group p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+          <h3 class="text-xl font-bold text-white mb-2">RAG Chatbot Comparative Analysis</h3>
+          <p class="text-sm text-slate-400 mb-4">深入对比不同 LLM API 在处理长文档检索时的成本与性能。</p>
+          <span class="text-xs font-mono text-indigo-400">#LangChain #LLM #Cost-Analysis</span>
+        </div>
+        <div class="group p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+          <h3 class="text-xl font-bold text-white mb-2">Algorithm Theory</h3>
+          <p class="text-sm text-slate-400 mb-4">利用数学逻辑对深度学习模型进行结构化分析。</p>
+          <span class="text-xs font-mono text-indigo-400">#PureMath #ModelAnalysis</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Latest Posts -->
+    <section class="py-16">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-8">Latest Posts</h2>
+      <ul class="space-y-6">
+        {posts.map(post => (
+          <li>
+            <a href={`/blog/${post.slug}`} class="group block p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+              <h3 class="text-xl font-bold text-white mb-1">{post.data.title}</h3>
+              <p class="text-sm text-slate-400 mb-3">{post.data.description}</p>
+              <div class="flex gap-2 flex-wrap">
+                {post.data.tags.map(tag => (
+                  <span class="text-xs font-mono text-indigo-400">#{tag}</span>
+                ))}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+  </div>
+</BaseLayout>
