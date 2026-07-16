@@ -23,3 +23,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .claude/
+
+# 课件仅存在于本地，不进 git / 不部署（版权原因）
+public/courses/
+src/content/courses/
