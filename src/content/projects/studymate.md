@@ -57,4 +57,4 @@ The repo includes a reproducible evaluation pipeline: an LLM writes one question
 - [ ] Weighted RRF fusion and a keyword-style question subset, to test whether hybrid retrieval can beat vector-only
 - [ ] Measure the impact of different chunk sizes on retrieval quality
 - [ ] Mistake book: track low-scoring quiz questions for targeted revision
-- [ ] Hosted live demo on this site (fixed demo corpus, rate-limited)
+- [x] Hosted live demo on this site — upload your own materials into a private temporary session (rate-limited, nothing stored)

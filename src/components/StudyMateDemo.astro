@@ -1,7 +1,7 @@
 ---
-// StudyMate 内嵌 live demo：Chat（带引用问答）+ Quiz（出题/判卷）两个标签页。
-// API 地址来自构建时环境变量 PUBLIC_STUDYMATE_API——没配置时整个区块不渲染，
-// 所以后端上线前这个组件对页面零影响。
+// StudyMate 内嵌 live demo：访客上传自己的学习材料（或一键加载示例笔记），
+// 服务端为其建立 2 小时过期的私有会话，Chat / Quiz 都只针对该会话的语料。
+// API 地址来自构建时环境变量 PUBLIC_STUDYMATE_API——没配置时整个区块不渲染。
 const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
 ---
 
@@ -10,66 +10,88 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
     <div class="flex items-center justify-between gap-4 flex-wrap mb-4">
       <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500">Live Demo</h2>
       <p class="text-xs text-slate-500">
-        Answers come only from my data-mining lecture notes · rate-limited · first request may take ~30s if the server is waking up
+        Rate-limited · sessions expire after 2h, nothing is stored · first request may take ~30s if the server is waking up
       </p>
     </div>
 
     <div class="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
-      <div class="flex border-b border-slate-800">
-        <button type="button" data-tab="chat" class="sm-tab px-5 py-3 text-sm font-medium text-white border-b-2 border-indigo-500">Chat</button>
-        <button type="button" data-tab="quiz" class="sm-tab px-5 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-white transition">Quiz</button>
+
+      <!-- Setup: upload your own materials -->
+      <div data-view="setup" class="p-8 text-center">
+        <p class="text-slate-300 text-sm max-w-xl mx-auto mb-2">
+          Upload your own study materials and chat with them — answers cite your files, and the quiz mode writes and grades questions from what you uploaded.
+        </p>
+        <p class="text-xs text-slate-500 mb-6">PDF, Markdown, or TXT · up to 3 files, 8MB each · indexed into a private temporary session</p>
+        <input id="sm-files" type="file" multiple accept=".pdf,.md,.txt" class="hidden" />
+        <div class="flex items-center justify-center gap-4 flex-wrap">
+          <button type="button" id="sm-upload-btn" class="px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Upload files
+          </button>
+          <span class="text-xs text-slate-600">or</span>
+          <button type="button" id="sm-sample-btn" class="px-5 py-2.5 rounded-xl border border-slate-700 hover:border-indigo-500 text-slate-200 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Try with sample notes
+          </button>
+        </div>
+        <p id="sm-setup-status" class="text-sm text-slate-500 mt-5 min-h-5"></p>
       </div>
 
-      <!-- Chat -->
-      <div data-pane="chat">
-        <div id="sm-messages" class="h-96 overflow-y-auto p-5 space-y-4">
-          <div class="text-sm text-slate-500">
-            Try: <button type="button" class="sm-suggest text-indigo-400 hover:underline">What is the purpose of a validation set?</button>
+      <!-- Workspace: chat + quiz over the session corpus -->
+      <div data-view="workspace" class="hidden">
+        <div class="flex items-center justify-between gap-3 flex-wrap px-5 py-2.5 border-b border-slate-800 bg-slate-950/40">
+          <p id="sm-session-info" class="text-xs font-mono text-slate-500 truncate"></p>
+          <button type="button" id="sm-reset" class="text-xs text-slate-400 hover:text-indigo-400 transition shrink-0">↺ Start over</button>
+        </div>
+        <div class="flex border-b border-slate-800">
+          <button type="button" data-tab="chat" class="sm-tab px-5 py-3 text-sm font-medium text-white border-b-2 border-indigo-500">Chat</button>
+          <button type="button" data-tab="quiz" class="sm-tab px-5 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-white transition">Quiz</button>
+        </div>
+
+        <div data-pane="chat">
+          <div id="sm-messages" class="h-96 overflow-y-auto p-5 space-y-4"></div>
+          <form id="sm-chat-form" class="flex gap-3 p-4 border-t border-slate-800">
+            <input
+              id="sm-input"
+              type="text"
+              maxlength="500"
+              placeholder="Ask something covered by your materials…"
+              autocomplete="off"
+              class="flex-1 bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+            />
+            <button type="submit" id="sm-send" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Send
+            </button>
+          </form>
+        </div>
+
+        <div data-pane="quiz" class="hidden p-5 space-y-4">
+          <button type="button" id="sm-new-q" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Quiz me
+          </button>
+          <div id="sm-quiz-body" class="hidden space-y-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Question</p>
+              <p id="sm-quiz-q" class="text-slate-200 text-sm leading-relaxed"></p>
+              <p id="sm-quiz-src" class="text-xs font-mono text-slate-600 mt-2"></p>
+            </div>
+            <textarea
+              id="sm-quiz-answer"
+              rows="3"
+              maxlength="2000"
+              placeholder="Type your answer…"
+              class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+            ></textarea>
+            <button type="button" id="sm-quiz-submit" class="px-4 py-2 rounded-xl border border-slate-700 hover:border-indigo-500 text-slate-200 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Submit answer
+            </button>
+            <div id="sm-quiz-result" class="hidden rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2">
+              <p id="sm-quiz-score" class="text-lg font-bold text-white"></p>
+              <p id="sm-quiz-feedback" class="text-sm text-slate-300 leading-relaxed"></p>
+              <p id="sm-quiz-ref" class="text-sm text-slate-500 leading-relaxed"></p>
+            </div>
           </div>
         </div>
-        <form id="sm-chat-form" class="flex gap-3 p-4 border-t border-slate-800">
-          <input
-            id="sm-input"
-            type="text"
-            maxlength="500"
-            placeholder="Ask something covered by the notes…"
-            autocomplete="off"
-            class="flex-1 bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
-          />
-          <button type="submit" id="sm-send" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-            Send
-          </button>
-        </form>
       </div>
 
-      <!-- Quiz -->
-      <div data-pane="quiz" class="hidden p-5 space-y-4">
-        <button type="button" id="sm-new-q" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-          Quiz me
-        </button>
-        <div id="sm-quiz-body" class="hidden space-y-4">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Question</p>
-            <p id="sm-quiz-q" class="text-slate-200 text-sm leading-relaxed"></p>
-            <p id="sm-quiz-src" class="text-xs font-mono text-slate-600 mt-2"></p>
-          </div>
-          <textarea
-            id="sm-quiz-answer"
-            rows="3"
-            maxlength="2000"
-            placeholder="Type your answer…"
-            class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
-          ></textarea>
-          <button type="button" id="sm-quiz-submit" class="px-4 py-2 rounded-xl border border-slate-700 hover:border-indigo-500 text-slate-200 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-            Submit answer
-          </button>
-          <div id="sm-quiz-result" class="hidden rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2">
-            <p id="sm-quiz-score" class="text-lg font-bold text-white"></p>
-            <p id="sm-quiz-feedback" class="text-sm text-slate-300 leading-relaxed"></p>
-            <p id="sm-quiz-ref" class="text-sm text-slate-500 leading-relaxed"></p>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 )}
@@ -80,6 +102,93 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
   if (root) {
     const API = root.dataset.api!;
     const $ = (id: string) => document.getElementById(id)!;
+    const SESSION_KEY = 'sm-session-id';
+
+    let sessionId = '';
+    const history: [string, string][] = [];
+
+    // ---- views ----
+    const showView = (name: 'setup' | 'workspace') => {
+      root.querySelectorAll<HTMLElement>('[data-view]').forEach((v) =>
+        v.classList.toggle('hidden', v.dataset.view !== name)
+      );
+    };
+
+    const setStatus = (text: string) => {
+      $('sm-setup-status').textContent = text;
+    };
+
+    const friendlyError = (status: number) =>
+      status === 429
+        ? 'Rate limit reached — please wait a minute (or the demo hit its daily cap).'
+        : `Something went wrong (HTTP ${status}). The free-tier server may still be waking up — try again in ~30s.`;
+
+    const enterWorkspace = (stats: { session_id: string; files: string[]; chunks: number }) => {
+      sessionId = stats.session_id;
+      sessionStorage.setItem(SESSION_KEY, sessionId);
+      $('sm-session-info').textContent = `${stats.files.join(' · ')} — ${stats.chunks} chunks indexed`;
+      $('sm-messages').innerHTML = '';
+      history.length = 0;
+      $('sm-quiz-body').classList.add('hidden');
+      showView('workspace');
+    };
+
+    const resetToSetup = (message = '') => {
+      sessionId = '';
+      sessionStorage.removeItem(SESSION_KEY);
+      showView('setup');
+      setStatus(message);
+    };
+
+    // ---- session creation ----
+    const filesInput = $('sm-files') as HTMLInputElement;
+    const uploadBtn = $('sm-upload-btn') as HTMLButtonElement;
+    const sampleBtn = $('sm-sample-btn') as HTMLButtonElement;
+
+    const createSession = async (kind: 'upload' | 'sample') => {
+      uploadBtn.disabled = sampleBtn.disabled = true;
+      setStatus(kind === 'upload' ? 'Uploading & indexing…' : 'Loading sample notes…');
+      try {
+        let res: Response;
+        if (kind === 'upload') {
+          const form = new FormData();
+          for (const f of filesInput.files ?? []) form.append('files', f);
+          res = await fetch(`${API}/session/upload`, { method: 'POST', body: form });
+        } else {
+          res = await fetch(`${API}/session/sample`, { method: 'POST' });
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setStatus(data.detail || friendlyError(res.status));
+          return;
+        }
+        if (data.truncated) {
+          alert('Your files exceeded the per-session indexing budget — only the first part was indexed.');
+        }
+        enterWorkspace(data);
+      } catch {
+        setStatus('Network error — the demo server may be offline.');
+      } finally {
+        uploadBtn.disabled = sampleBtn.disabled = false;
+        filesInput.value = '';
+      }
+    };
+
+    uploadBtn.addEventListener('click', () => filesInput.click());
+    filesInput.addEventListener('change', () => {
+      if (filesInput.files?.length) createSession('upload');
+    });
+    sampleBtn.addEventListener('click', () => createSession('sample'));
+    $('sm-reset').addEventListener('click', () => resetToSetup());
+
+    // Restore a previous session on page load if the server still has it
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (stored) {
+      fetch(`${API}/session/${encodeURIComponent(stored)}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((stats) => enterWorkspace(stats))
+        .catch(() => sessionStorage.removeItem(SESSION_KEY));
+    }
 
     // ---- tabs ----
     const tabs = root.querySelectorAll<HTMLButtonElement>('.sm-tab');
@@ -97,16 +206,10 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
       })
     );
 
-    const friendlyError = (status: number) =>
-      status === 429
-        ? 'Rate limit reached — please wait a minute (or the demo hit its daily cap).'
-        : `Something went wrong (HTTP ${status}). The free-tier server may still be waking up — try again in ~30s.`;
-
     // ---- chat ----
     const messages = $('sm-messages');
     const input = $('sm-input') as HTMLInputElement;
     const send = $('sm-send') as HTMLButtonElement;
-    const history: [string, string][] = [];
 
     const bubble = (role: 'user' | 'ai', text: string) => {
       const div = document.createElement('div');
@@ -129,8 +232,12 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
         const res = await fetch(`${API}/chat`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ question, history: history.slice(-3) }),
+          body: JSON.stringify({ session_id: sessionId, question, history: history.slice(-3) }),
         });
+        if (res.status === 410) {
+          resetToSetup('Your session expired — upload your materials again.');
+          return;
+        }
         if (!res.ok || !res.body) {
           aiDiv.textContent = friendlyError(res.status);
           return;
@@ -156,11 +263,8 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
     $('sm-chat-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const q = input.value.trim();
-      if (q && !send.disabled) ask(q);
+      if (q && !send.disabled && sessionId) ask(q);
     });
-    root.querySelectorAll<HTMLButtonElement>('.sm-suggest').forEach((b) =>
-      b.addEventListener('click', () => ask(b.textContent!.trim()))
-    );
 
     // ---- quiz ----
     const newQ = $('sm-new-q') as HTMLButtonElement;
@@ -173,7 +277,15 @@ const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
       newQ.disabled = true;
       newQ.textContent = 'Writing a question…';
       try {
-        const res = await fetch(`${API}/quiz/question`, { method: 'POST' });
+        const res = await fetch(`${API}/quiz/question`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+        if (res.status === 410) {
+          resetToSetup('Your session expired — upload your materials again.');
+          return;
+        }
         if (!res.ok) throw new Error(String(res.status));
         const q = await res.json();
         quizToken = q.token;
