@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formattedDate = post.data.date.toLocaleDateString('en-AU', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={post.data.title}>
+  <div class="max-w-3xl mx-auto px-6 py-12">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
+      ← Back to home
+    </a>
+
+    <header class="mb-12 pb-10 border-b border-slate-800">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+        {post.data.title}
+      </h1>
+      <p class="text-lg text-slate-400 mb-6">{post.data.description}</p>
+      <div class="flex items-center gap-4 flex-wrap">
+        <time datetime={post.data.date.toISOString()} class="text-sm text-slate-500">
+          {formattedDate}
+        </time>
+        <div class="flex gap-2 flex-wrap">
+          {post.data.tags.map((tag) => (
+            <span class="text-xs font-mono text-indigo-400">#{tag}</span>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <article class="prose prose-invert prose-slate max-w-none
+      prose-headings:text-white prose-headings:tracking-tight
+      prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
+      prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none
+      prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+      prose-blockquote:border-l-indigo-500 prose-blockquote:text-slate-400
+      prose-strong:text-white">
+      <Content />
+    </article>
+
+  </div>
+</BaseLayout>

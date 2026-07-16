@@ -1,0 +1,78 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+const notes = await getCollection('courses');
+
+// 按 学年 -> 课程 两层分组
+const bySemester = new Map();
+for (const note of notes) {
+  const { semester, course } = note.data;
+  if (!bySemester.has(semester)) bySemester.set(semester, new Map());
+  const byCourse = bySemester.get(semester);
+  if (!byCourse.has(course)) byCourse.set(course, []);
+  byCourse.get(course).push(note);
+}
+
+// 学年从高到低排（研究生阶段在最前），课程内笔记按日期正序（按学习顺序读）
+const SEMESTER_ORDER = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Master Year 1', 'Master Year 2'];
+const rank = (s) => SEMESTER_ORDER.indexOf(s);
+const semesters = [...bySemester.keys()].sort((a, b) => rank(b) - rank(a) || b.localeCompare(a));
+for (const byCourse of bySemester.values()) {
+  for (const courseNotes of byCourse.values()) {
+    courseNotes.sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+  }
+}
+---
+
+<BaseLayout title="Courses · Retrograde Resonance">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <section class="py-8 border-b border-slate-800 mb-12">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Courses</h1>
+      <p class="text-lg text-slate-400">Course materials and notes, organized by academic year.</p>
+    </section>
+
+    {semesters.length === 0 && (
+      <p class="text-slate-500">Nothing here yet. Add files under <code class="text-cyan-300 font-mono text-sm">src/content/courses/</code> to get started.</p>
+    )}
+
+    {semesters.map((semester) => (
+      <section class="mb-14">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">{semester}</h2>
+        <div class="space-y-8">
+          {[...bySemester.get(semester).entries()].map(([course, courseNotes]) => (
+            <details class="group rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-slate-700 transition">
+              <summary class="flex items-center gap-3 px-6 py-5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 text-indigo-400 group-open:hidden">
+                  <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
+                </svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="hidden shrink-0 text-indigo-400 group-open:block">
+                  <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <h3 class="text-xl font-bold text-white flex-1">{course}</h3>
+                <span class="text-xs font-mono text-slate-500">{courseNotes.length} {courseNotes.length === 1 ? 'note' : 'notes'}</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" class="shrink-0 text-slate-500 transition-transform group-open:rotate-180">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              </summary>
+              <ul class="px-6 pb-5 pt-3 space-y-1 border-t border-slate-800/60">
+                {courseNotes.map((note) => (
+                  <li>
+                    <a href={`/courses/${note.id}`} class="group/note flex items-center gap-3 py-2 px-3 -mx-3 rounded-lg hover:bg-slate-800/50 transition">
+                      <span class="text-slate-300 group-hover/note:text-indigo-400 transition">{note.data.title}</span>
+                      {note.data.pdf && (
+                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border border-rose-400/30 bg-rose-400/10 text-rose-400 shrink-0">PDF</span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))}
+        </div>
+      </section>
+    ))}
+
+  </div>
+</BaseLayout>

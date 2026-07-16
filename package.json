@@ -1,5 +1,5 @@
 {
-  "name": "users-glockiebae-desktop-blog",
+  "name": "ericlin-site",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -11,6 +11,14 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
-    "tailwindcss": "^4.2.1"
+    "katex": "^0.17.0",
+    "pdfjs-dist": "^6.1.200",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "tailwindcss": "^4.2.1",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.20"
   }
 }

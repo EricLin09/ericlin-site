@@ -1,13 +1,22 @@
 ---
-// 1. 必须引入这个全局 CSS 文件，Tailwind 才能生效
 import '../styles/global.css';
+import 'katex/dist/katex.min.css';
 
-// 2. 建议定义一个 title 变量，方便不同页面显示
 const { title = "Retrograde Resonance" } = Astro.props;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/courses', label: 'Courses' },
+  { href: '/projects', label: 'Projects' },
+];
+
+const currentPath = Astro.url.pathname;
+const isActive = (href) =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 ---
 
 <!doctype html>
-<html lang="zh">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -15,17 +24,41 @@ const { title = "Retrograde Resonance" } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="bg-slate-950 text-slate-300 antialiased selection:bg-indigo-500/30">
-		<slot />
+	<body class="bg-slate-950 text-slate-300 antialiased selection:bg-indigo-500/30 min-h-screen flex flex-col">
+
+		<header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+			<nav class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+				<a href="/" class="font-bold text-white tracking-tight hover:text-indigo-400 transition">
+					Retrograde<span class="text-indigo-400">.</span>
+				</a>
+				<div class="flex gap-6">
+					{navLinks.map((link) => (
+						<a
+							href={link.href}
+							class:list={[
+								'text-sm transition',
+								isActive(link.href)
+									? 'text-white font-medium'
+									: 'text-slate-400 hover:text-indigo-400',
+							]}
+						>
+							{link.label}
+						</a>
+					))}
+				</div>
+			</nav>
+		</header>
+
+		<main class="flex-1">
+			<slot />
+		</main>
+
+		<footer class="border-t border-slate-800 py-8">
+			<p class="max-w-4xl mx-auto px-6 text-sm text-slate-600">
+				© 2026 Retrograde Resonance · Built with Astro ·
+				Planet textures by <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener" class="hover:text-slate-400 transition underline decoration-slate-700">Solar System Scope</a> (CC BY 4.0)
+			</p>
+		</footer>
+
 	</body>
 </html>
-
-<style>
-	/* 你可以保留原来的基础设置，但大部分样式现在可以用 Tailwind 处理了 */
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

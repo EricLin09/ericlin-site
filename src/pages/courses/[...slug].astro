@@ -1,0 +1,178 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('courses');
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+---
+
+<BaseLayout title={`${note.data.title} · ${note.data.course}`}>
+  <div class="w-[min(92vw,1600px)] mx-auto px-6 py-12">
+
+    <a href="/courses" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
+      ← Back to courses
+    </a>
+
+    <header class="mb-12 pb-10 border-b border-slate-800">
+      <p class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-3">
+        {note.data.semester} · {note.data.course}
+      </p>
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+        {note.data.title}
+      </h1>
+      {note.data.description && <p class="text-lg text-slate-400 mb-6">{note.data.description}</p>}
+      {note.data.tags.length > 0 && (
+        <div class="flex gap-2 flex-wrap">
+          {note.data.tags.map((tag) => (
+            <span class="text-xs font-mono text-indigo-400">#{tag}</span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    {note.data.pdf && (
+      <section class="mb-12">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
+          <div class="flex items-center justify-between gap-x-6 gap-y-3 flex-wrap px-5 py-3 border-b border-slate-800 bg-slate-900">
+            <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500">Course Materials</h2>
+            <div class="flex items-center gap-6">
+              <label class="flex items-center gap-2 text-sm text-slate-400">
+                Zoom
+                <input
+                  id="pdf-zoom"
+                  type="range"
+                  min="0.5"
+                  max="2.5"
+                  step="0.05"
+                  value="1"
+                  class="w-32 accent-indigo-500 cursor-pointer"
+                />
+                <span id="pdf-zoom-value" class="font-mono text-xs text-slate-500 w-10 text-right">100%</span>
+              </label>
+              <a href={note.data.pdf} download class="text-sm text-slate-400 hover:text-indigo-400 transition shrink-0">Download PDF ↓</a>
+            </div>
+          </div>
+          <div id="pdf-scroll" data-pdf={note.data.pdf} class="h-[85vh] overflow-auto overscroll-contain bg-slate-950/50">
+            <div id="pdf-pages" class="py-6 px-6">
+              <p id="pdf-loading" class="text-center text-sm text-slate-500 py-10">
+                Loading PDF… If it doesn't appear, <a href={note.data.pdf} class="text-indigo-400 hover:underline">download it here</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <article class="prose prose-invert prose-slate
+      prose-headings:text-white prose-headings:tracking-tight
+      prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
+      prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none
+      prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+      prose-blockquote:border-l-indigo-500 prose-blockquote:text-slate-400
+      prose-strong:text-white">
+      <Content />
+    </article>
+
+  </div>
+</BaseLayout>
+
+<style>
+  /* 页面画布容器：比面板窄时居中；放大超出时横向滚动，左缘不会被裁掉 */
+  #pdf-pages {
+    width: max-content;
+    min-width: 100%;
+  }
+  #pdf-pages :global(canvas) {
+    display: block;
+    margin: 0 auto 1.25rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+  }
+</style>
+
+<script>
+  // 用 PDF.js 自渲染取代浏览器原生 <object> 查看器：
+  // 原生查看器（尤其 Safari）不做适配宽度——容器加宽只补白边、变窄会裁内容。
+  // 自己渲染后：100% = 完整贴合面板宽度，放大 = 真正重新按比例渲染，超出部分面板内滚动。
+  import * as pdfjsLib from 'pdfjs-dist';
+  import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+
+  const scroll = document.getElementById('pdf-scroll');
+  const pagesEl = document.getElementById('pdf-pages');
+  const slider = document.getElementById('pdf-zoom') as HTMLInputElement | null;
+  const label = document.getElementById('pdf-zoom-value');
+
+  if (scroll && pagesEl && slider && label) {
+    const clamp = (v: number) => Math.min(2.5, Math.max(0.5, v));
+    let zoom = clamp(parseFloat(localStorage.getItem('pdf-viewer-zoom') ?? '') || 1);
+    slider.value = String(zoom);
+    label.textContent = `${Math.round(zoom * 100)}%`;
+
+    let generation = 0;
+
+    const startViewer = async () => {
+      // pdfjs v6 起 getDocument 只接受 { url } 对象，不再接受纯字符串
+      const doc = await pdfjsLib.getDocument({ url: scroll.dataset.pdf! }).promise;
+
+      const render = async () => {
+        const gen = ++generation;
+        const scrollRatio = scroll.scrollHeight > 0 ? scroll.scrollTop / scroll.scrollHeight : 0;
+        const available = Math.max(scroll.clientWidth - 48, 200);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        pagesEl.replaceChildren();
+        for (let i = 1; i <= doc.numPages; i++) {
+          if (gen !== generation) return;
+          const page = await doc.getPage(i);
+          if (gen !== generation) return;
+
+          // 基准 0.7：100% = 面板内容宽度的七成（贴合全宽太大，重定义了默认观感）
+          const BASE_FIT = 0.7;
+          const baseWidth = page.getViewport({ scale: 1 }).width;
+          const viewport = page.getViewport({ scale: (available / baseWidth) * BASE_FIT * zoom * dpr });
+
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.style.width = `${Math.floor(viewport.width / dpr)}px`;
+          pagesEl.appendChild(canvas);
+
+          await page.render({ canvas, canvasContext: canvas.getContext('2d')!, viewport }).promise;
+        }
+        scroll.scrollTop = scrollRatio * scroll.scrollHeight;
+      };
+
+      let renderTimer: ReturnType<typeof setTimeout>;
+      const scheduleRender = (delay: number) => {
+        clearTimeout(renderTimer);
+        renderTimer = setTimeout(() => render(), delay);
+      };
+
+      slider.addEventListener('input', () => {
+        zoom = clamp(parseFloat(slider.value));
+        label.textContent = `${Math.round(zoom * 100)}%`;
+        localStorage.setItem('pdf-viewer-zoom', String(zoom));
+        scheduleRender(150);
+      });
+      window.addEventListener('resize', () => scheduleRender(200));
+
+      await render();
+    };
+
+    startViewer().catch((err) => {
+      console.error('PDF viewer failed:', err);
+      const link = scroll.dataset.pdf!;
+      pagesEl.innerHTML = `<p class="text-center text-sm text-slate-400 py-10">Preview failed to load — <a href="${link}" class="text-indigo-400 hover:underline">download the PDF here</a>.</p>`;
+    });
+  }
+</script>

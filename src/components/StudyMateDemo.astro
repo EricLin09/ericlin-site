@@ -1,0 +1,224 @@
+---
+// StudyMate 内嵌 live demo：Chat（带引用问答）+ Quiz（出题/判卷）两个标签页。
+// API 地址来自构建时环境变量 PUBLIC_STUDYMATE_API——没配置时整个区块不渲染，
+// 所以后端上线前这个组件对页面零影响。
+const apiBase = import.meta.env.PUBLIC_STUDYMATE_API as string | undefined;
+---
+
+{apiBase && (
+  <section class="mt-16" data-api={apiBase} id="sm-demo">
+    <div class="flex items-center justify-between gap-4 flex-wrap mb-4">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500">Live Demo</h2>
+      <p class="text-xs text-slate-500">
+        Answers come only from my data-mining lecture notes · rate-limited · first request may take ~30s if the server is waking up
+      </p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
+      <div class="flex border-b border-slate-800">
+        <button type="button" data-tab="chat" class="sm-tab px-5 py-3 text-sm font-medium text-white border-b-2 border-indigo-500">Chat</button>
+        <button type="button" data-tab="quiz" class="sm-tab px-5 py-3 text-sm font-medium text-slate-400 border-b-2 border-transparent hover:text-white transition">Quiz</button>
+      </div>
+
+      <!-- Chat -->
+      <div data-pane="chat">
+        <div id="sm-messages" class="h-96 overflow-y-auto p-5 space-y-4">
+          <div class="text-sm text-slate-500">
+            Try: <button type="button" class="sm-suggest text-indigo-400 hover:underline">What is the purpose of a validation set?</button>
+          </div>
+        </div>
+        <form id="sm-chat-form" class="flex gap-3 p-4 border-t border-slate-800">
+          <input
+            id="sm-input"
+            type="text"
+            maxlength="500"
+            placeholder="Ask something covered by the notes…"
+            autocomplete="off"
+            class="flex-1 bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+          />
+          <button type="submit" id="sm-send" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Send
+          </button>
+        </form>
+      </div>
+
+      <!-- Quiz -->
+      <div data-pane="quiz" class="hidden p-5 space-y-4">
+        <button type="button" id="sm-new-q" class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+          Quiz me
+        </button>
+        <div id="sm-quiz-body" class="hidden space-y-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Question</p>
+            <p id="sm-quiz-q" class="text-slate-200 text-sm leading-relaxed"></p>
+            <p id="sm-quiz-src" class="text-xs font-mono text-slate-600 mt-2"></p>
+          </div>
+          <textarea
+            id="sm-quiz-answer"
+            rows="3"
+            maxlength="2000"
+            placeholder="Type your answer…"
+            class="w-full bg-slate-950/60 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500"
+          ></textarea>
+          <button type="button" id="sm-quiz-submit" class="px-4 py-2 rounded-xl border border-slate-700 hover:border-indigo-500 text-slate-200 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
+            Submit answer
+          </button>
+          <div id="sm-quiz-result" class="hidden rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2">
+            <p id="sm-quiz-score" class="text-lg font-bold text-white"></p>
+            <p id="sm-quiz-feedback" class="text-sm text-slate-300 leading-relaxed"></p>
+            <p id="sm-quiz-ref" class="text-sm text-slate-500 leading-relaxed"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  const root = document.getElementById('sm-demo');
+
+  if (root) {
+    const API = root.dataset.api!;
+    const $ = (id: string) => document.getElementById(id)!;
+
+    // ---- tabs ----
+    const tabs = root.querySelectorAll<HTMLButtonElement>('.sm-tab');
+    const panes = root.querySelectorAll<HTMLElement>('[data-pane]');
+    tabs.forEach((tab) =>
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => {
+          const active = t === tab;
+          t.classList.toggle('text-white', active);
+          t.classList.toggle('border-indigo-500', active);
+          t.classList.toggle('text-slate-400', !active);
+          t.classList.toggle('border-transparent', !active);
+        });
+        panes.forEach((p) => p.classList.toggle('hidden', p.dataset.pane !== tab.dataset.tab));
+      })
+    );
+
+    const friendlyError = (status: number) =>
+      status === 429
+        ? 'Rate limit reached — please wait a minute (or the demo hit its daily cap).'
+        : `Something went wrong (HTTP ${status}). The free-tier server may still be waking up — try again in ~30s.`;
+
+    // ---- chat ----
+    const messages = $('sm-messages');
+    const input = $('sm-input') as HTMLInputElement;
+    const send = $('sm-send') as HTMLButtonElement;
+    const history: [string, string][] = [];
+
+    const bubble = (role: 'user' | 'ai', text: string) => {
+      const div = document.createElement('div');
+      div.className =
+        role === 'user'
+          ? 'ml-auto max-w-[85%] w-fit rounded-2xl rounded-br-sm bg-indigo-500/20 border border-indigo-500/30 px-4 py-2 text-sm text-slate-200 whitespace-pre-wrap'
+          : 'mr-auto max-w-[85%] w-fit rounded-2xl rounded-bl-sm bg-slate-800/70 border border-slate-700/60 px-4 py-2 text-sm text-slate-300 whitespace-pre-wrap';
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    };
+
+    const ask = async (question: string) => {
+      input.value = '';
+      send.disabled = true;
+      bubble('user', question);
+      const aiDiv = bubble('ai', '…');
+      try {
+        const res = await fetch(`${API}/chat`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ question, history: history.slice(-3) }),
+        });
+        if (!res.ok || !res.body) {
+          aiDiv.textContent = friendlyError(res.status);
+          return;
+        }
+        aiDiv.textContent = '';
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          aiDiv.textContent += decoder.decode(value, { stream: true });
+          messages.scrollTop = messages.scrollHeight;
+        }
+        history.push([question, aiDiv.textContent ?? '']);
+      } catch {
+        aiDiv.textContent = 'Network error — the demo server may be offline.';
+      } finally {
+        send.disabled = false;
+        input.focus();
+      }
+    };
+
+    $('sm-chat-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (q && !send.disabled) ask(q);
+    });
+    root.querySelectorAll<HTMLButtonElement>('.sm-suggest').forEach((b) =>
+      b.addEventListener('click', () => ask(b.textContent!.trim()))
+    );
+
+    // ---- quiz ----
+    const newQ = $('sm-new-q') as HTMLButtonElement;
+    const submitA = $('sm-quiz-submit') as HTMLButtonElement;
+    const answerEl = $('sm-quiz-answer') as HTMLTextAreaElement;
+    let quizToken = '';
+    let quizSig = '';
+
+    newQ.addEventListener('click', async () => {
+      newQ.disabled = true;
+      newQ.textContent = 'Writing a question…';
+      try {
+        const res = await fetch(`${API}/quiz/question`, { method: 'POST' });
+        if (!res.ok) throw new Error(String(res.status));
+        const q = await res.json();
+        quizToken = q.token;
+        quizSig = q.sig;
+        $('sm-quiz-q').textContent = q.question;
+        $('sm-quiz-src').textContent = `Source: ${q.sources.join(', ')}`;
+        answerEl.value = '';
+        $('sm-quiz-result').classList.add('hidden');
+        $('sm-quiz-body').classList.remove('hidden');
+      } catch (e) {
+        $('sm-quiz-q').textContent = friendlyError(Number((e as Error).message) || 0);
+        $('sm-quiz-src').textContent = '';
+        $('sm-quiz-body').classList.remove('hidden');
+      } finally {
+        newQ.disabled = false;
+        newQ.textContent = 'Quiz me again';
+      }
+    });
+
+    submitA.addEventListener('click', async () => {
+      const answer = answerEl.value.trim();
+      if (!answer || !quizToken) return;
+      submitA.disabled = true;
+      submitA.textContent = 'Grading…';
+      try {
+        const res = await fetch(`${API}/quiz/grade`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ token: quizToken, sig: quizSig, answer }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const g = await res.json();
+        $('sm-quiz-score').textContent = `Score: ${g.score}/10`;
+        $('sm-quiz-feedback').textContent = g.feedback;
+        $('sm-quiz-ref').textContent = `Reference answer: ${g.reference_answer}`;
+        $('sm-quiz-result').classList.remove('hidden');
+      } catch (e) {
+        $('sm-quiz-score').textContent = '';
+        $('sm-quiz-feedback').textContent = friendlyError(Number((e as Error).message) || 0);
+        $('sm-quiz-ref').textContent = '';
+        $('sm-quiz-result').classList.remove('hidden');
+      } finally {
+        submitA.disabled = false;
+        submitA.textContent = 'Submit answer';
+      }
+    });
+  }
+</script>

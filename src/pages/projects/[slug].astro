@@ -1,0 +1,68 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+import StudyMateDemo from '../../components/StudyMateDemo.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+const statusLabel = {
+  'in-progress': { text: 'In progress', class: 'text-amber-400 border-amber-400/30 bg-amber-400/10' },
+  'completed': { text: 'Completed', class: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10' },
+  'archived': { text: 'Archived', class: 'text-slate-500 border-slate-600/30 bg-slate-600/10' },
+};
+const status = statusLabel[project.data.status];
+---
+
+<BaseLayout title={`${project.data.title} · Projects`}>
+  <div class="max-w-3xl mx-auto px-6 py-12">
+
+    <a href="/projects" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
+      ← Back to projects
+    </a>
+
+    <header class="mb-12 pb-10 border-b border-slate-800">
+      <div class="flex items-center gap-3 mb-4">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+          {project.data.title}
+        </h1>
+        <span class={`text-xs px-2 py-0.5 rounded-full border shrink-0 ${status.class}`}>{status.text}</span>
+      </div>
+      <p class="text-lg text-slate-400 mb-6">{project.data.description}</p>
+      <div class="flex items-center gap-4 flex-wrap text-sm">
+        <div class="flex gap-2 flex-wrap">
+          {project.data.tech.map((t) => (
+            <span class="text-xs font-mono text-indigo-400">#{t}</span>
+          ))}
+        </div>
+        {project.data.repo && (
+          <a href={project.data.repo} target="_blank" rel="noopener" class="text-slate-400 hover:text-indigo-400 transition">Repository ↗</a>
+        )}
+        {project.data.demo && (
+          <a href={project.data.demo} target="_blank" rel="noopener" class="text-slate-400 hover:text-indigo-400 transition">Demo ↗</a>
+        )}
+      </div>
+    </header>
+
+    <article class="prose prose-invert prose-slate max-w-none
+      prose-headings:text-white prose-headings:tracking-tight
+      prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
+      prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none
+      prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-pre:rounded-xl
+      prose-blockquote:border-l-indigo-500 prose-blockquote:text-slate-400
+      prose-strong:text-white">
+      <Content />
+    </article>
+
+    {project.data.demoWidget === 'studymate' && <StudyMateDemo />}
+
+  </div>
+</BaseLayout>
