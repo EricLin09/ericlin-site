@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+const posts = await getCollection('posts');
+posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const formatDate = (date: Date) =>
+  date.toISOString().slice(0, 10).replace(/-/g, ' / ');
+
+// 标签总览（按出现次数降序），用于索引页顶部的快速过滤入口
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout
+  title="Blog · Retrograde Resonance"
+  description="Writing by Eric Lin — machine learning, retrieval, and applied AI, with an emphasis on measured results (including the negative ones)."
+>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <section class="py-8 border-b border-slate-800 mb-10">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Blog</h1>
+      <p class="text-lg text-slate-400">What I tried, what I measured, what actually happened.</p>
+    </section>
+
+    {tags.length > 0 && (
+      <div class="flex gap-2 flex-wrap mb-12">
+        {tags.map(([tag, count]) => (
+          <a
+            href={`/tags/${tag}`}
+            class="text-xs font-mono px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-300 transition"
+          >
+            #{tag} <span class="text-slate-600">{count}</span>
+          </a>
+        ))}
+      </div>
+    )}
+
+    {posts.length === 0 && (
+      <p class="text-slate-500">No posts yet.</p>
+    )}
+
+    <ul class="space-y-2">
+      {posts.map((post) => (
+        <li class="group flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 py-4 px-3 -mx-3 rounded-xl hover:bg-slate-900/60 transition">
+          <time
+            datetime={post.data.date.toISOString().slice(0, 10)}
+            class="shrink-0 text-sm font-mono text-slate-500 w-32 whitespace-nowrap"
+          >
+            {formatDate(post.data.date)}
+          </time>
+          <div>
+            <h2 class="text-lg font-bold mb-1">
+              <a href={`/blog/${post.id}`} class="text-white group-hover:text-indigo-300 transition">
+                {post.data.title}
+              </a>
+            </h2>
+            <p class="text-sm text-slate-400 mb-2">{post.data.description}</p>
+            <div class="flex gap-2 flex-wrap">
+              {post.data.tags.map((tag) => (
+                <a href={`/tags/${tag}`} class="text-xs font-mono text-indigo-400 hover:text-indigo-300 hover:underline transition">#{tag}</a>
+              ))}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</BaseLayout>

@@ -75,7 +75,10 @@ const formatDate = (date: Date) =>
 
     <!-- Latest Posts -->
     <section class="py-20">
-      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-8">Latest Posts</h2>
+      <div class="flex items-baseline justify-between mb-8">
+        <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500">Latest Posts</h2>
+        <a href="/blog" class="text-sm text-slate-400 hover:text-indigo-400 transition">All posts →</a>
+      </div>
       <ul class="space-y-2">
         {posts.map(post => (
           <li>
@@ -85,7 +88,7 @@ const formatDate = (date: Date) =>
             >
               <time
                 datetime={post.data.date.toISOString().slice(0, 10)}
-                class="shrink-0 text-sm font-mono text-slate-500 w-28"
+                class="shrink-0 text-sm font-mono text-slate-500 w-32 whitespace-nowrap"
               >
                 {formatDate(post.data.date)}
               </time>

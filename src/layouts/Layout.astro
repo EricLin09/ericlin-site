@@ -14,6 +14,7 @@ const hasCourses = (await getCollection('courses')).length > 0;
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
   ...(hasCourses ? [{ href: '/courses', label: 'Courses' }] : []),
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About' },

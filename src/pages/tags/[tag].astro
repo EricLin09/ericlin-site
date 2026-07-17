@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  const byTag = new Map();
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      if (!byTag.has(tag)) byTag.set(tag, []);
+      byTag.get(tag).push(post);
+    }
+  }
+  return [...byTag.entries()].map(([tag, tagged]) => ({
+    params: { tag },
+    props: { tagged },
+  }));
+}
+
+const { tag } = Astro.params;
+const { tagged } = Astro.props;
+tagged.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const formatDate = (date: Date) =>
+  date.toISOString().slice(0, 10).replace(/-/g, ' / ');
+---
+
+<BaseLayout
+  title={`#${tag} · Retrograde Resonance`}
+  description={`Posts tagged #${tag} by Eric Lin.`}
+>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <a href="/tags" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
+      ← All tags
+    </a>
+
+    <section class="py-8 border-b border-slate-800 mb-10">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+        <span class="text-indigo-400">#</span>{tag}
+      </h1>
+      <p class="text-lg text-slate-400">{tagged.length} {tagged.length === 1 ? 'post' : 'posts'}</p>
+    </section>
+
+    <ul class="space-y-2">
+      {tagged.map((post) => (
+        <li class="group flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 py-4 px-3 -mx-3 rounded-xl hover:bg-slate-900/60 transition">
+          <time
+            datetime={post.data.date.toISOString().slice(0, 10)}
+            class="shrink-0 text-sm font-mono text-slate-500 w-32 whitespace-nowrap"
+          >
+            {formatDate(post.data.date)}
+          </time>
+          <div>
+            <h2 class="text-lg font-bold mb-1">
+              <a href={`/blog/${post.id}`} class="text-white group-hover:text-indigo-300 transition">
+                {post.data.title}
+              </a>
+            </h2>
+            <p class="text-sm text-slate-400">{post.data.description}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+</BaseLayout>

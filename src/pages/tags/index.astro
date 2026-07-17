@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/Layout.astro';
+
+const posts = await getCollection('posts');
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+---
+
+<BaseLayout
+  title="Tags · Retrograde Resonance"
+  description="All topics on Retrograde Resonance, by tag."
+>
+  <div class="max-w-4xl mx-auto px-6 py-12">
+
+    <section class="py-8 border-b border-slate-800 mb-10">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Tags</h1>
+      <p class="text-lg text-slate-400">Every topic on the site, weighted by how much I've written about it.</p>
+    </section>
+
+    {tags.length === 0 && <p class="text-slate-500">No tags yet.</p>}
+
+    <div class="flex gap-3 flex-wrap">
+      {tags.map(([tag, count]) => (
+        <a
+          href={`/tags/${tag}`}
+          class="group flex items-baseline gap-2 px-4 py-2 rounded-xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition"
+        >
+          <span class="font-mono text-sm text-indigo-400 group-hover:text-indigo-300 transition">#{tag}</span>
+          <span class="text-xs text-slate-500">{count}</span>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>

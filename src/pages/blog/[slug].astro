@@ -23,8 +23,8 @@ const formattedDate = post.data.date.toLocaleDateString('en-AU', {
 <BaseLayout title={`${post.data.title} · Retrograde Resonance`} description={post.data.description}>
   <div class="max-w-3xl mx-auto px-6 py-12">
 
-    <a href="/" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
-      ← Back to home
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition mb-10">
+      ← Back to blog
     </a>
 
     <header class="mb-12 pb-10 border-b border-slate-800">
@@ -38,7 +38,7 @@ const formattedDate = post.data.date.toLocaleDateString('en-AU', {
         </time>
         <div class="flex gap-2 flex-wrap">
           {post.data.tags.map((tag) => (
-            <span class="text-xs font-mono text-indigo-400">#{tag}</span>
+            <a href={`/tags/${tag}`} class="text-xs font-mono text-indigo-400 hover:text-indigo-300 hover:underline transition">#{tag}</a>
           ))}
         </div>
       </div>
