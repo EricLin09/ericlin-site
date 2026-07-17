@@ -1,28 +1,50 @@
 ---
+import { getCollection } from 'astro:content';
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 
-const { title = "Retrograde Resonance" } = Astro.props;
+const {
+  title = 'Retrograde Resonance — Eric Lin',
+  description = 'Personal site of Eric Lin — coursework notes and applied AI / machine learning projects.',
+} = Astro.props;
+
+// 课程内容因版权只存在本地（src/content/courses 已 gitignore），
+// 线上构建时该集合为空 → 导航里不渲染 Courses 入口，避免空壳板块
+const hasCourses = (await getCollection('courses')).length > 0;
 
 const navLinks = [
   { href: '/', label: 'Home' },
-  { href: '/courses', label: 'Courses' },
+  ...(hasCourses ? [{ href: '/courses', label: 'Courses' }] : []),
   { href: '/projects', label: 'Projects' },
+  { href: '/about', label: 'About' },
 ];
 
 const currentPath = Astro.url.pathname;
 const isActive = (href) =>
   href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<meta name="description" content={description} />
+		{canonical && <link rel="canonical" href={canonical} />}
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Retrograde Resonance" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		{canonical && <meta property="og:url" content={canonical} />}
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<link rel="sitemap" href="/sitemap-index.xml" />
 	</head>
 	<body class="bg-slate-950 text-slate-300 antialiased selection:bg-indigo-500/30 min-h-screen flex flex-col">
 

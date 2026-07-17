@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/Layout.astro';
+
+const skills = [
+  {
+    group: 'Programming',
+    items: ['Python', 'R', 'SQL'],
+  },
+  {
+    group: 'ML & Deep Learning',
+    items: ['PyTorch', 'scikit-learn', 'LangChain', 'ChromaDB', 'OpenAI API', 'RAG / vector search', 'NumPy', 'Pandas'],
+  },
+  {
+    group: 'Mathematics',
+    items: ['Linear Algebra', 'Probability & Statistics', 'Optimization', 'Time Series Analysis'],
+  },
+  {
+    group: 'Building & Shipping',
+    items: ['FastAPI', 'Streamlit', 'Git/GitHub', 'AWS Cloud', 'Astro'],
+  },
+];
+---
+
+<BaseLayout
+  title="About · Retrograde Resonance"
+  description="Eric (Xi) Lin — Imperial College London mathematics graduate, Master of IT student at UTS Sydney, building toward a machine learning engineer role."
+>
+  <div class="max-w-3xl mx-auto px-6 py-12">
+
+    <header class="py-8 border-b border-slate-800 mb-12">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+        Hi, I'm Eric<span class="text-indigo-400">.</span>
+      </h1>
+      <p class="text-lg text-slate-400 leading-relaxed">
+        Mathematics graduate from Imperial College London, now a Master of IT
+        student at the University of Technology Sydney — building toward a
+        machine learning engineer role. The math background shaped how I
+        approach ML: measure first, conclude second.
+      </p>
+    </header>
+
+    <section class="mb-14">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">What I do</h2>
+      <div class="space-y-4 text-slate-300 leading-relaxed">
+        <p>
+          I build end-to-end projects and write up what actually happened —
+          including the negative results. <a href="/projects/studymate" class="text-indigo-400 hover:underline">StudyMate</a>
+          is a RAG agent over my own lecture notes, taken from prototype to a
+          deployed public demo with a reproducible retrieval evaluation; my
+          <a href="/projects/loan-repayment" class="text-indigo-400 hover:underline">credit-risk pipeline</a>
+          benchmarks nine classifiers with leakage-free cross-validation and SHAP
+          interpretability.
+        </p>
+        <p>
+          The write-ups on this site follow the same principle: when hybrid
+          retrieval lost to plain vector search, or SMOTE didn't help on real
+          credit data, that's what I published.
+        </p>
+      </div>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">Experience</h2>
+      <div class="text-slate-300 leading-relaxed">
+        <div class="flex items-baseline justify-between gap-4 flex-wrap mb-2">
+          <h3 class="font-bold text-white">National Supercomputing Center Wuxi</h3>
+          <span class="text-sm font-mono text-slate-500">Oct 2024 – Jan 2025</span>
+        </div>
+        <p class="text-sm text-slate-400 mb-3">Research Intern, Intelligent Computing Department</p>
+        <p class="text-sm">
+          Worked on a patent-valuation system based on textual semantic
+          similarity — implemented word2vec embeddings in PyTorch and ran model
+          training on a remote GPU/Linux environment. Also contributed to a
+          research project applying AlphaFold3 to protein-structure prediction.
+        </p>
+      </div>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">Toolbox</h2>
+      <div class="space-y-6">
+        {skills.map(({ group, items }) => (
+          <div>
+            <h3 class="text-sm font-medium text-slate-400 mb-3">{group}</h3>
+            <div class="flex gap-2 flex-wrap">
+              {items.map((item) => (
+                <span class="text-xs font-mono px-2.5 py-1 rounded-full border border-slate-700 text-slate-300">{item}</span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">Honors</h2>
+      <ul class="space-y-2 text-sm text-slate-300">
+        <li class="flex gap-3"><span class="text-indigo-400 shrink-0">·</span>Dean's List, University of Technology Sydney — Autumn 2026</li>
+        <li class="flex gap-3"><span class="text-indigo-400 shrink-0">·</span>Mathematical Contest in Modeling (MCM) 2021 — Meritorious Award</li>
+        <li class="flex gap-3"><span class="text-indigo-400 shrink-0">·</span>AMC Mathematics Competition 2019 — Gold Award</li>
+      </ul>
+    </section>
+
+    <section class="mb-14">
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">Currently</h2>
+      <p class="text-slate-300 leading-relaxed">
+        Looking for a machine learning / data internship for Summer 2026–27 in
+        Sydney. If any of the work here is relevant to your team, I'd love to
+        hear from you.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-6">Contact</h2>
+      <div class="flex items-center gap-4 flex-wrap">
+        <a
+          href="mailto:lx20001209@gmail.com"
+          class="px-5 py-2.5 rounded-full bg-indigo-500 text-white text-sm font-medium hover:bg-indigo-400 transition"
+        >
+          Email me
+        </a>
+        <a
+          href="/CV.pdf"
+          target="_blank"
+          class="px-5 py-2.5 rounded-full border border-slate-700 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition"
+        >
+          Download CV
+        </a>
+        <a
+          href="https://github.com/EricLin09"
+          target="_blank"
+          rel="noopener"
+          class="px-5 py-2.5 rounded-full border border-slate-700 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition inline-flex items-center gap-2"
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+          </svg>
+          GitHub
+        </a>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>

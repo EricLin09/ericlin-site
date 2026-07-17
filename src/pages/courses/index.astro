@@ -25,7 +25,7 @@ for (const byCourse of bySemester.values()) {
 }
 ---
 
-<BaseLayout title="Courses · Retrograde Resonance">
+<BaseLayout title="Courses · Retrograde Resonance" description="Course notes by Eric Lin, organized by academic year.">
   <div class="max-w-4xl mx-auto px-6 py-12">
 
     <section class="py-8 border-b border-slate-800 mb-12">
@@ -34,7 +34,7 @@ for (const byCourse of bySemester.values()) {
     </section>
 
     {semesters.length === 0 && (
-      <p class="text-slate-500">Nothing here yet. Add files under <code class="text-cyan-300 font-mono text-sm">src/content/courses/</code> to get started.</p>
+      <p class="text-slate-500">Lecture materials are kept offline for copyright reasons — my own study notes will be published here.</p>
     )}
 
     {semesters.map((semester) => (
