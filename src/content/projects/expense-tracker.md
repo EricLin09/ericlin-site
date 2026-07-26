@@ -4,7 +4,7 @@ date: 2026-07-26
 description: "An offline Android expense tracker that reads payment notifications into draft records — with a 271-rule on-device lookup table in front of a local LLM, and the measurements that argue for that order."
 tech: ["Java", "Android", "SQLite", "llama.cpp", "Qwen3-4B", "JUnit"]
 repo: "https://github.com/EricLin09/Android-Expense-Tracker"
-status: "in-progress"
+status: "completed"
 ---
 
 A personal expense tracker for Android: native Java, no backend, no analytics, no third-party
