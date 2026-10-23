@@ -41,7 +41,7 @@ quiz: sample random chunks ──► generate question ──► grade answer
 The repo includes a reproducible evaluation pipeline: an LLM writes one question per random chunk (that chunk becomes the ground truth), then three retrieval strategies are compared on **Hit@4** (is the ground-truth chunk retrieved) and **MRR@10** (how high it ranks).
 
 | Strategy | Description | Hit@4 | MRR@10 |
-|---|---|---|---|
+|---|---|---:|---:|
 | **vector** | Dense retrieval (text-embedding-3-small + Chroma) | **96%** | **0.917** |
 | bm25 | Keyword retrieval (BM25) | 92% | 0.844 |
 | hybrid | Both retrievers fused with Reciprocal Rank Fusion | 92% | 0.903 |

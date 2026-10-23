@@ -21,7 +21,7 @@ Everything else is shared: `all-MiniLM-L6-v2` at a pinned commit, a masked InfoN
 ## It wasn't close
 
 | Method (test, 648 queries) | NDCG@10 | Recall@10 |
-|---|---|---|
+|---|---:|---:|
 | BM25 | 0.2337 | 0.3005 |
 | Original MiniLM, no fine-tuning | 0.3687 | 0.4413 |
 | **E1 random negatives** | **0.3974** | **0.4724** |
@@ -42,7 +42,7 @@ It's a good story. I tried to check it instead of writing it down.
 I sampled 40 `(query, negative)` pairs — 20 from each arm — shuffled them, stripped the source and the BM25 rank, and labelled all of them by hand before opening the key.
 
 | | relevant | partially | not relevant |
-|---|---|---|---|
+|---|---:|---:|---:|
 | E1 random (20) | 1 | 0 | 19 |
 | E2 BM25-hard (20) | 3 | 6 | 11 |
 

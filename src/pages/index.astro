@@ -17,10 +17,10 @@ const formatDate = (date: Date) =>
     <!-- Hero：占满首屏，文字垂直居中 -->
     <section class="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center pb-24">
       <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight leading-tight text-balance">
-        What I'm learning, <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">what I'm building</span>
+        Measure first, <span class="text-indigo-400">conclude second</span>
       </h1>
       <p class="text-lg text-slate-300 max-w-2xl leading-relaxed mb-10 [text-shadow:0_1px_3px_rgba(2,6,23,0.9),0_0_16px_rgba(2,6,23,0.8)]">
-        This site is a record of my coursework and personal projects — notes on algorithms, models, and applied AI.
+        Machine learning coursework and projects, written up with the negative results left in.
       </p>
       <div class="flex items-center gap-4">
         <a
@@ -58,17 +58,17 @@ const formatDate = (date: Date) =>
     <section id="projects" class="py-20">
       <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-8">Selected Research & Projects</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a href="/projects/studymate" class="group p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+        <a href="/projects/studymate" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
           <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">StudyMate</h3>
           <p class="text-sm text-slate-400 mb-4">A RAG agent that answers from my lecture notes with citations and quizzes me on them — 96% Hit@4 on a reproducible retrieval eval.</p>
           <span class="text-xs font-mono text-indigo-400">#RAG #LangChain #Chroma #Evaluation</span>
         </a>
-        <a href="/projects/loan-repayment" class="group p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+        <a href="/projects/loan-repayment" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
           <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Loan Default Prediction</h3>
           <p class="text-sm text-slate-400 mb-4">A credit-risk pipeline benchmarking 9 classifiers with leakage-free CV, imbalance-strategy comparison, and SHAP interpretability.</p>
           <span class="text-xs font-mono text-indigo-400">#scikit-learn #XGBoost #SHAP</span>
         </a>
-        <a href="/projects/expense-tracker" class="group p-6 rounded-2xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition">
+        <a href="/projects/expense-tracker" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
           <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Expense Tracker</h3>
           <p class="text-sm text-slate-400 mb-4">An offline Android app that turns payment notifications into records — a 271-rule on-device lookup table in front of a local LLM, not behind it.</p>
           <span class="text-xs font-mono text-indigo-400">#Android #Java #on-device-LLM #SQLite</span>

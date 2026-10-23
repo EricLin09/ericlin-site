@@ -24,7 +24,7 @@ So before trusting it for exam revision, I built a small evaluation pipeline.
 ## Results
 
 | Strategy | Hit@4 | MRR@10 |
-|---|---|---|
+|---|---:|---:|
 | **vector** | **96%** | **0.917** |
 | bm25 | 92% | 0.844 |
 | hybrid | 92% | 0.903 |

@@ -12,10 +12,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
-    "katex": "^0.17.0",
     "pdfjs-dist": "^6.1.200",
-    "rehype-katex": "^7.0.1",
-    "remark-math": "^6.0.0",
     "tailwindcss": "^4.2.1",
     "three": "^0.185.1"
   },

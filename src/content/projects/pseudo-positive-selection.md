@@ -49,7 +49,7 @@ The naive "threshold vs all candidates" difference splits exactly into two parts
 ![The naive threshold-minus-all difference split into a volume part and a selection part](/projects/pseudo-positive-selection/volume_decomposition.png)
 
 | Dataset, budget | Threshold − all | Random − all | **Threshold − random** |
-|---|---|---|---|
+|---|---:|---:|---|
 | nfcorpus, 1 epoch | +0.01220 | +0.00508 | **+0.00712** [0.00294, 0.01156] |
 | nfcorpus, 40 updates | +0.01095 | −0.00140 | **+0.01235** [0.00671, 0.01819] |
 | SciFact, 1 epoch | +0.00962 | +0.00496 | **+0.00466** [−0.00007, 0.00971] |
@@ -86,7 +86,7 @@ Both counterexamples hold in every individual seed, not just the means. These de
 
 ## Averages hide a lot of query-level churn
 
-![nfcorpus per-query differences, sorted within each budget](/projects/pseudo-positive-selection/query_differences.png)
+![nfcorpus per-query differences, sorted within each budget](/projects/pseudo-positive-selection/query_differences-light.png)
 
 The nfcorpus mean gains sit on top of improved/tied/regressed counts of **103/152/69** after one epoch and **126/126/72** under 40 updates. The median difference is **zero** in both. The five largest improvements account for 24.6% and 15.9% of all positive difference; remove them and the means stay positive but shrink to 0.00403 and 0.00910.
 

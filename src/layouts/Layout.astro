@@ -1,11 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
-import 'katex/dist/katex.min.css';
 
 const {
   title = 'Retrograde Resonance — Eric Lin',
-  description = 'Personal site of Eric Lin — coursework notes and applied AI / machine learning projects.',
+  description = 'Machine learning coursework and projects by Eric Lin, written up with the negative results left in.',
+  image = '/og-default.png',
 } = Astro.props;
 
 // 课程内容因版权只存在本地（src/content/courses 已 gitignore），
@@ -25,6 +25,8 @@ const isActive = (href) =>
   href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+// 社交平台的抓取器只认绝对地址，相对路径会被当作没有图
+const ogImage = Astro.site ? new URL(image, Astro.site) : undefined;
 ---
 
 <!doctype html>
@@ -42,7 +44,11 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefin
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		{canonical && <meta property="og:url" content={canonical} />}
-		<meta name="twitter:card" content="summary" />
+		{ogImage && <meta property="og:image" content={ogImage} />}
+		{ogImage && <meta property="og:image:width" content="1200" />}
+		{ogImage && <meta property="og:image:height" content="630" />}
+		{ogImage && <meta name="twitter:image" content={ogImage} />}
+		<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		<link rel="sitemap" href="/sitemap-index.xml" />

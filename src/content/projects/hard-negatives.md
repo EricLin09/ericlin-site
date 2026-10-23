@@ -34,7 +34,7 @@ Baselines: **B0** BM25 (`k₁=1.5`, `b=0.75`), and **B1** the original MiniLM wi
 Test split, 648 queries, evaluated once after the method was frozen:
 
 | Method | NDCG@10 | Recall@10 | Recall@100 |
-|---|---|---|---|
+|---|---:|---:|---:|
 | B0 BM25 | 0.2337 | 0.3005 | 0.5068 |
 | B1 original MiniLM | 0.3687 | 0.4413 | 0.7061 |
 | **E1 random negatives** (mean of 3 seeds) | **0.3974** | **0.4724** | **0.7319** |
@@ -43,7 +43,7 @@ Test split, 648 queries, evaluated once after the method was frozen:
 Paired differences in NDCG@10, with 95% intervals:
 
 | Contrast | Difference | 95% CI |
-|---|---|---|
+|---|---:|---:|
 | **E2 − E1** | **−0.0162** | [−0.0241, −0.0085] |
 | E1 − B1 | +0.0288 | [+0.0198, +0.0378] |
 | E2 − B1 | +0.0126 | [+0.0012, +0.0240] |
@@ -61,7 +61,7 @@ The obvious story is false negatives: BM25's top 20 contains unlabelled answers,
 I hand-labelled 40 sampled `(query, negative)` pairs **blind** — shuffled, shown without their source or BM25 rank, with the key opened only after all 40 labels were saved:
 
 | | relevant | partially | not relevant |
-|---|---|---|---|
+|---|---:|---:|---:|
 | E1 random (20) | 1 | 0 | 19 |
 | E2 BM25-hard (20) | 3 | 6 | 11 |
 

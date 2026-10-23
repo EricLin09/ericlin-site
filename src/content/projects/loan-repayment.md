@@ -16,7 +16,7 @@ The positive class of interest is **default**, so all scoring uses `pos_label=0`
 Hold-out test set (stratified 20%, never seen during training or tuning):
 
 | Model | F1 (default) | Precision | Recall | ROC-AUC |
-|---|---|---|---|---|
+|---|---:|---:|---:|---:|
 | **Gradient Boosting** | **0.714** | 0.962 | 0.567 | 0.893 |
 | Soft-Voting Ensemble | 0.710 | 0.971 | 0.559 | 0.891 |
 | XGBoost | 0.707 | 0.940 | 0.566 | 0.891 |
@@ -24,11 +24,11 @@ Hold-out test set (stratified 20%, never seen during training or tuning):
 | AdaBoost | 0.684 | 0.837 | 0.579 | 0.881 |
 | Logistic Regression | 0.615 | 0.526 | 0.741 | 0.887 |
 
-![ROC curves for all models on the hold-out test set](/projects/loan-repayment/roc_curves_all.png)
+![ROC curves for all models on the hold-out test set](/projects/loan-repayment/roc_curves_all-light.png)
 
 Top default drivers (permutation importance + SHAP): **employment status, credit score, debt-to-income ratio**.
 
-![SHAP summary for the best model](/projects/loan-repayment/shap_summary_best.png)
+![SHAP summary for the best model](/projects/loan-repayment/shap_summary_best-light.png)
 
 ## Key Engineering Decisions
 

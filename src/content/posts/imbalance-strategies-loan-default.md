@@ -16,7 +16,7 @@ Target metric is **minority-class F1** (`pos_label=0`, the defaulters) — accur
 5-fold CV, identical folds across strategies:
 
 | Model | Strategy | F1 (default) | Precision | Recall |
-|---|---|---|---|---|
+|---|---|---:|---:|---:|
 | Logistic Regression | baseline | **0.661** | 0.812 | 0.558 |
 | Logistic Regression | class_weight | 0.606 | 0.514 | 0.739 |
 | Logistic Regression | SMOTE | 0.608 | 0.525 | 0.724 |
@@ -24,7 +24,7 @@ Target metric is **minority-class F1** (`pos_label=0`, the defaulters) — accur
 | Random Forest | class_weight | 0.670 | 0.938 | 0.521 |
 | Random Forest | SMOTE | 0.672 | 0.908 | 0.533 |
 
-![Imbalance strategy comparison](/posts/imbalance_comparison.png)
+![Imbalance strategy comparison](/posts/imbalance_comparison-light.png)
 
 Two patterns, neither of them the tutorial's promise:
 

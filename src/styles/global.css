@@ -1,2 +1,51 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+/* 来自本地已无源码的项目的图表，底色仍是白的。invert 翻转明暗、hue-rotate 把色相转回来，
+   所以 SHAP 那种“红=高、蓝=低”的语义不会被破坏；能重新生成的图直接出深色，不走这里。 */
+article img[src*="-light"] {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* 结果表是这个站的主体内容，不该按散文排版。数字用 tabular-nums，小数点才对得齐；
+   markdown 里标成右对齐的列就是数值列，交给等宽字体承担。 */
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+article thead th {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-slate-400);
+  border-bottom: 1px solid var(--color-slate-700);
+  padding: 0 0.75rem 0.5rem;
+  white-space: nowrap;
+}
+
+article tbody td {
+  border-bottom: 1px solid var(--color-slate-800);
+  padding: 0.5rem 0.75rem;
+}
+
+article tbody tr:last-child td { border-bottom: 0; }
+
+/* 外缘不留内边距，表格左右边沿与正文对齐 */
+article th:first-child, article td:first-child { padding-left: 0; }
+article th:last-child,  article td:last-child  { padding-right: 0; }
+
+/* 数值列：等宽 + 略亮，让数字比标签更突出 */
+article th[align="right"], article td[align="right"] {
+  /* align= 只是表现性提示，Typography 的 text-align:left 会压过它，所以显式写 */
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  color: var(--color-slate-200);
+}
+
+/* markdown 里加粗的那一行就是最优结果 */
+article tbody td strong { color: #fff; font-weight: 600; }
