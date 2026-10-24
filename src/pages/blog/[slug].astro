@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/Layout.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -11,7 +12,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const formattedDate = post.data.date.toLocaleDateString('en-AU', {
   year: 'numeric',
@@ -27,7 +28,7 @@ const formattedDate = post.data.date.toLocaleDateString('en-AU', {
       ← Back to blog
     </a>
 
-    <header class="mb-12 pb-10 border-b border-slate-800">
+    <header data-pagefind-body class="mb-12 pb-10 border-b border-slate-800">
       <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
         {post.data.title}
       </h1>
@@ -44,7 +45,9 @@ const formattedDate = post.data.date.toLocaleDateString('en-AU', {
       </div>
     </header>
 
-    <article class="prose prose-invert prose-slate max-w-none
+    <TableOfContents headings={headings} />
+
+    <article data-pagefind-body class="prose prose-invert prose-slate max-w-none
       prose-headings:text-white prose-headings:tracking-tight
       prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
       prose-code:text-cyan-300 prose-code:before:content-none prose-code:after:content-none

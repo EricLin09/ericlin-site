@@ -84,3 +84,8 @@ article blockquote p::after {
   outline-offset: 3px;
   border-radius: 3px;
 }
+
+/* 导航吸顶 4rem。点目录或锚点跳转时，标题要落在导航下面，不能被它盖住。 */
+article :is(h2, h3)[id] {
+  scroll-margin-top: 6rem;
+}

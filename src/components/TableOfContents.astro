@@ -1,0 +1,91 @@
+---
+// 长文目录。至少 3 个二级标题才出现：短文用不着，强塞一个反而是噪音。
+// 宽屏（xl 起）正文右侧有空间，固定成一条侧栏并随滚动高亮当前小节；
+// 窄屏没有侧边空间，折叠成正文开头的一个 <details>，默认收起，不挡正文。
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((h) => h.depth === 2);
+const show = items.length >= 3;
+---
+
+{show && (
+  <>
+    <details class="xl:hidden group/toc mb-10 border-y border-slate-800">
+      <summary class="flex items-center justify-between py-3 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden text-xs font-bold uppercase tracking-widest text-indigo-500">
+        On this page
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" class="text-slate-450 transition-transform group-open/toc:rotate-180">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <ol class="pb-4 space-y-2">
+        {items.map((h) => (
+          <li>
+            <a href={`#${h.slug}`} class="text-sm text-slate-400 hover:text-indigo-400 transition">{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </details>
+
+    <nav aria-label="On this page" class="toc-rail hidden xl:block fixed top-28 w-52 max-h-[calc(100vh-9rem)] overflow-y-auto">
+      <p class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">On this page</p>
+      <ol class="border-l border-slate-800">
+        {items.map((h) => (
+          <li>
+            <a
+              href={`#${h.slug}`}
+              data-toc-link={h.slug}
+              class="block -ml-px border-l border-transparent pl-4 py-1.5 text-sm leading-snug text-slate-450 hover:text-slate-200 transition"
+            >{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </>
+)}
+
+<style>
+  /* 正文盒是 max-w-3xl（48rem）居中：从视口中线往右推半个盒宽，再留 2rem 间距 */
+  .toc-rail {
+    left: calc(50% + 24rem + 2rem);
+  }
+  .toc-rail a[aria-current='true'] {
+    color: var(--color-white);
+    border-left-color: var(--color-indigo-400);
+  }
+</style>
+
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+  const targets = links
+    .map((a) => document.getElementById(a.dataset.tocLink!))
+    .filter((el): el is HTMLElement => el !== null);
+
+  if (targets.length) {
+    let queued = false;
+    const update = () => {
+      queued = false;
+      // 当前小节 = 最后一个顶端已越过视口上方 120px 的标题；120px 是吸顶导航加一点余量
+      let current = targets[0];
+      for (const t of targets) {
+        if (t.getBoundingClientRect().top <= 120) current = t;
+      }
+      for (const a of links) {
+        a.setAttribute('aria-current', String(a.dataset.tocLink === current.id));
+      }
+    };
+    update();
+    addEventListener(
+      'scroll',
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+  }
+</script>

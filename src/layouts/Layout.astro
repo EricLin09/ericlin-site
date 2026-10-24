@@ -13,7 +13,8 @@ const {
 const hasCourses = (await getCollection('courses')).length > 0;
 
 const navLinks = [
-  { href: '/', label: 'Home' },
+  // 手机宽度下放不下全部链接加搜索图标；左上角站名本身就链回首页，所以小屏省掉 Home
+  { href: '/', label: 'Home', class: 'hidden sm:inline' },
   { href: '/blog', label: 'Blog' },
   ...(hasCourses ? [{ href: '/courses', label: 'Courses' }] : []),
   { href: '/projects', label: 'Projects' },
@@ -52,6 +53,8 @@ const ogImage = Astro.site ? new URL(image, Astro.site) : undefined;
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
 		<link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="alternate" type="application/rss+xml" title="Retrograde Resonance" href={new URL('rss.xml', Astro.site)} />
+		<slot name="head" />
 	</head>
 	<body class="bg-slate-950 text-slate-300 antialiased selection:bg-indigo-500/30 min-h-screen flex flex-col">
 		<!-- 键盘用户按一次 Tab 就能跳过导航，直接到正文 -->
@@ -62,12 +65,13 @@ const ogImage = Astro.site ? new URL(image, Astro.site) : undefined;
 				<a href="/" class="font-bold text-white tracking-tight hover:text-indigo-400 transition">
 					Retrograde<span class="text-indigo-400">.</span>
 				</a>
-				<div class="flex gap-6">
+				<div class="flex items-center gap-6">
 					{navLinks.map((link) => (
 						<a
 							href={link.href}
 							class:list={[
 								'text-sm transition',
+								link.class,
 								isActive(link.href)
 									? 'text-white font-medium'
 									: 'text-slate-400 hover:text-indigo-400',
@@ -76,6 +80,20 @@ const ogImage = Astro.site ? new URL(image, Astro.site) : undefined;
 							{link.label}
 						</a>
 					))}
+					<!-- 图标 16px，内边距把点击区域撑到 24px，负外边距再抵掉，不多占导航宽度 -->
+					<a
+						href="/search"
+						aria-label="Search"
+						class:list={[
+							'flex -m-1 p-1 transition',
+							isActive('/search') ? 'text-white' : 'text-slate-400 hover:text-indigo-400',
+						]}
+					>
+						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+							<circle cx="11" cy="11" r="7" />
+							<path d="m20 20-3.5-3.5" />
+						</svg>
+					</a>
 				</div>
 			</nav>
 		</header>

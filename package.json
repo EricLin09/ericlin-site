@@ -9,9 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
+    "pagefind": "^1.5.2",
     "pdfjs-dist": "^6.1.200",
     "tailwindcss": "^4.2.1",
     "three": "^0.185.1"
