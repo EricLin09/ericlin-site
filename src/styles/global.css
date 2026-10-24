@@ -56,3 +56,16 @@ article blockquote p::before,
 article blockquote p::after {
   content: none;
 }
+
+/* 宽数据表在手机上必须自己横滑。不然手机浏览器会把整页缩小去塞下最宽的那张表，
+   全文都跟着缩到六成左右。只在窄屏生效：桌面端表格仍撑满正文宽度、按列分配。
+   数值列不折行，表格因此宽过容器，交给容器滚动；标签列照常折行，保持紧凑。 */
+@media (max-width: 767px) {
+  article table {
+    display: block;
+    overflow-x: auto;
+  }
+  article th[align="right"], article td[align="right"] {
+    white-space: nowrap;
+  }
+}

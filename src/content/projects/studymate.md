@@ -38,23 +38,25 @@ quiz: sample random chunks ──► generate question ──► grade answer
 
 ## Retrieval Evaluation
 
-The repo includes a reproducible evaluation pipeline: an LLM writes one question per random chunk (that chunk becomes the ground truth), then three retrieval strategies are compared on **Hit@4** (is the ground-truth chunk retrieved) and **MRR@10** (how high it ranks).
+Hybrid retrieval reaches **0.938 MRR@10** and leads vector-only at 0.917 once BM25 tokenizes by word — the tokenizer switch alone lifts BM25 from 0.844 to 0.904.
 
 | Strategy | Description | Hit@4 | MRR@10 |
 |---|---|---:|---:|
-| **vector** | Dense retrieval (text-embedding-3-small + Chroma) | **96%** | **0.917** |
-| bm25 | Keyword retrieval (BM25) | 92% | 0.844 |
-| hybrid | Both retrievers fused with Reciprocal Rank Fusion | 92% | 0.903 |
+| **hybrid** | Both retrievers fused with Reciprocal Rank Fusion | **96%** | **0.938** |
+| vector | Dense retrieval (text-embedding-3-small + Chroma) | 96% | 0.917 |
+| bm25 | Keyword retrieval (BM25, lower-cased word tokens) | 92% | 0.904 |
 
-*Corpus: 12 weeks of data-mining lecture slides, 700 chunks, 24 auto-generated questions.*
+*Corpus: 12 weeks of data-mining lecture slides, 700 chunks, 24 auto-generated questions. Hit@4 checks the ground-truth chunk reaches the 4 the app feeds the LLM; MRR@10 measures how high it ranks.*
 
-**Findings:** dense retrieval alone performed best on this corpus — RRF hybrid did *not* improve on it. Two likely reasons: (1) the auto-generated test questions are LLM paraphrases of the source chunks, which favors semantic matching over exact keyword overlap; (2) equal-weight RRF lets BM25's weaker ranking dilute the vector ranking it disagrees with. With 24 questions one question ≈ 4 percentage points, so the vector-vs-bm25 gap is small — but the 96% Hit@4 ceiling confirms the chunking + embedding pipeline retrieves reliably.
+A paired test set shows how much the phrasing matters. Each of 40 chunks gets two questions sharing one ground truth — a paraphrase and a short keyword lookup — and the phrasing alone moves vector search from 100% Hit@4 to 75%. Hybrid leads on keyword lookups (80% Hit@4, 0.646 MRR) and stays within two points of vector on paraphrases (98% against 100%). Full write-up: [Reword the Question, Lose a Quarter of Your Hits](/blog/rigged-retrieval-benchmark).
 
 ## Roadmap
 
 - [x] Retrieval evaluation: auto-generated test set + vector / BM25 / RRF-hybrid comparison
 - [x] Web UI (Streamlit) with streaming output
-- [ ] Weighted RRF fusion and a keyword-style question subset, to test whether hybrid retrieval can beat vector-only
+- [x] Keyword-style question subset, paired against paraphrases on the same chunks ([results](/blog/rigged-retrieval-benchmark))
+- [x] Hosted live demo on this site — upload your own materials into a private temporary session (rate-limited, nothing stored)
+- [ ] Move the app's retriever to hybrid — it leads vector-only on MRR@10 in both test sets
+- [ ] Sweep the RRF weight, now that `--bm25-weight` is in place
 - [ ] Measure the impact of different chunk sizes on retrieval quality
 - [ ] Mistake book: track low-scoring quiz questions for targeted revision
-- [x] Hosted live demo on this site — upload your own materials into a private temporary session (rate-limited, nothing stored)
