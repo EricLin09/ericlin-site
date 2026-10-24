@@ -49,3 +49,10 @@ article th[align="right"], article td[align="right"] {
 
 /* markdown 里加粗的那一行就是最优结果 */
 article tbody td strong { color: #fff; font-weight: 600; }
+
+/* Typography 给 blockquote 的段落加了装饰引号。这个站用 blockquote 写的是提示性批注，
+   不是引文，带着引号反而像在引用别人说的话。 */
+article blockquote p::before,
+article blockquote p::after {
+  content: none;
+}

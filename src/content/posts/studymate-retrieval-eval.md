@@ -5,6 +5,8 @@ description: "I benchmarked vector, BM25, and RRF-hybrid retrieval on my own lec
 tags: ["RAG", "retrieval", "evaluation"]
 ---
 
+> **Followed up, October 2026.** I built the keyword question subset this post asks for, and paired it against the paraphrases on the same chunks. Rewording the question alone moves vector search from 100% to 75% Hit@4, and flips the sign of BM25's advantage — so the comparison below holds for *this* question style, not in general. The numbers are in [Reword the Question, Lose a Quarter of Your Hits](/blog/rigged-retrieval-benchmark).
+
 While building [StudyMate](/projects/studymate) — a RAG agent over my lecture notes — I wanted an answer to a question that's easy to skip: **does the retrieval actually work, or does it just look like it works?** If the right chunk isn't in the context window, everything downstream (citations, "I don't know" honesty, quiz grading) is built on sand.
 
 So before trusting it for exam revision, I built a small evaluation pipeline.
@@ -44,6 +46,8 @@ The industry lore says hybrid should win — dense retrieval catches paraphrases
 - **Weighted fusion** (favor vector, use BM25 as a tiebreaker) instead of equal-weight RRF.
 - **A keyword-style question subset** — acronyms, named algorithms, formula names — to give BM25 a fair fight and measure where it actually earns its keep.
 - More questions, obviously.
+
+*Both of the first two are [done, with results](/blog/rigged-retrieval-benchmark) — along with a third thing I hadn't thought to list: the whitespace tokenizer above was costing BM25 0.06 MRR by itself.*
 
 ## Takeaway
 
