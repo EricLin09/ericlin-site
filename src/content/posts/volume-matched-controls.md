@@ -26,7 +26,7 @@ That gives an exact decomposition. The naive difference is the sum of two measur
 Only the second piece is selection. 48 fine-tuning runs later, across nfcorpus and SciFact with three paired seeds:
 
 | Dataset, budget | Naive: threshold − all | Volume: random − all | **Selection: threshold − random** |
-|---|---:|---:|---|
+|---|---:|---:|---:|
 | nfcorpus, 1 epoch | +0.01220 | +0.00508 | **+0.00712** [0.00294, 0.01156] |
 | nfcorpus, 40 updates | +0.01095 | −0.00140 | **+0.01235** [0.00671, 0.01819] |
 | SciFact, 1 epoch | +0.00962 | +0.00496 | **+0.00466** [−0.00007, 0.00971] |

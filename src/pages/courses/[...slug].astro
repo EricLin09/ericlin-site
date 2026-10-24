@@ -55,14 +55,14 @@ const { Content } = await render(note);
                   value="1"
                   class="w-32 accent-indigo-500 cursor-pointer"
                 />
-                <span id="pdf-zoom-value" class="font-mono text-xs text-slate-500 w-10 text-right">100%</span>
+                <span id="pdf-zoom-value" class="font-mono text-xs text-slate-450 w-10 text-right">100%</span>
               </label>
               <a href={note.data.pdf} download class="text-sm text-slate-400 hover:text-indigo-400 transition shrink-0">Download PDF ↓</a>
             </div>
           </div>
           <div id="pdf-scroll" data-pdf={note.data.pdf} class="h-[85vh] overflow-auto overscroll-contain bg-slate-950/50">
             <div id="pdf-pages" class="py-6 px-6">
-              <p id="pdf-loading" class="text-center text-sm text-slate-500 py-10">
+              <p id="pdf-loading" class="text-center text-sm text-slate-450 py-10">
                 Loading PDF… If it doesn't appear, <a href={note.data.pdf} class="text-indigo-400 hover:underline">download it here</a>.
               </p>
             </div>

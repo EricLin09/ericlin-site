@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/Layout.astro';
+
+const destinations = [
+  { href: '/projects', label: 'Projects', note: 'research and builds, with the numbers' },
+  { href: '/blog', label: 'Blog', note: 'what I measured, including what didn’t work' },
+  { href: '/about', label: 'About', note: 'background, experience and CV' },
+];
+---
+
+<BaseLayout title="Page not found · Retrograde Resonance" description="There is no page at this address.">
+  <div class="max-w-3xl mx-auto px-6 py-24">
+
+    <p class="text-sm font-mono text-indigo-400 mb-4">404</p>
+    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+      Nothing at this address<span class="text-indigo-400">.</span>
+    </h1>
+    <p class="text-lg text-slate-400 mb-12 max-w-xl">
+      The link may have a typo, or the page moved. Everything on the site is one click from here.
+    </p>
+
+    <ul>
+      {destinations.map((d) => (
+        <li>
+          <a href={d.href} class="group flex items-baseline gap-4 py-4 border-t border-slate-800 hover:border-indigo-400/70 transition">
+            <span class="text-white font-bold group-hover:text-indigo-300 transition w-24 shrink-0">{d.label}</span>
+            <span class="text-sm text-slate-450">{d.note}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <a href="/" class="inline-block mt-10 text-sm text-slate-400 hover:text-indigo-400 transition">← Back home</a>
+
+  </div>
+</BaseLayout>

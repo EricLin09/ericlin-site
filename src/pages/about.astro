@@ -44,7 +44,14 @@ const skills = [
       <div class="space-y-4 text-slate-300 leading-relaxed">
         <p>
           I build end-to-end projects and write up what actually happened —
-          including the negative results. <a href="/projects/studymate" class="text-indigo-400 hover:underline">StudyMate</a>
+          including the negative results. My research fine-tunes text encoders
+          for retrieval: a supervised UTS project on
+          <a href="/projects/pseudo-positive-selection" class="text-indigo-400 hover:underline">selecting training pairs for contrastive fine-tuning</a>,
+          and a controlled test of
+          <a href="/projects/hard-negatives" class="text-indigo-400 hover:underline">whether hard negatives help</a>.
+        </p>
+        <p>
+          <a href="/projects/studymate" class="text-indigo-400 hover:underline">StudyMate</a>
           is a RAG agent over my own lecture notes, taken from prototype to a
           deployed public demo with a reproducible retrieval evaluation; my
           <a href="/projects/loan-repayment" class="text-indigo-400 hover:underline">credit-risk pipeline</a>
@@ -52,9 +59,11 @@ const skills = [
           interpretability.
         </p>
         <p>
-          The write-ups on this site follow the same principle: when hybrid
+          The write-ups on this site follow the same principle. When hybrid
           retrieval lost to plain vector search, or SMOTE didn't help on real
-          credit data, that's what I published.
+          credit data, that's what I published — and when a paired test set
+          later showed the retrieval loss came from how I'd built the benchmark,
+          I published that too.
         </p>
       </div>
     </section>
@@ -64,7 +73,7 @@ const skills = [
       <div class="text-slate-300 leading-relaxed">
         <div class="flex items-baseline justify-between gap-4 flex-wrap mb-2">
           <h3 class="font-bold text-white">National Supercomputing Center Wuxi</h3>
-          <span class="text-sm font-mono text-slate-500">Oct 2024 – Jan 2025</span>
+          <span class="text-sm font-mono text-slate-450">Oct 2024 – Jan 2025</span>
         </div>
         <p class="text-sm text-slate-400 mb-3">Research Intern, Intelligent Computing Department</p>
         <p class="text-sm">

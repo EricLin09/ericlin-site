@@ -46,7 +46,7 @@ const formatDate = (date: Date) =>
       <a
         href="#projects"
         aria-label="Scroll down"
-        class="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-500 hover:text-slate-300 transition animate-bounce"
+        class="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-450 hover:text-slate-300 transition animate-bounce"
       >
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M6 9l6 6 6-6" />
@@ -57,21 +57,23 @@ const formatDate = (date: Date) =>
     <!-- Projects -->
     <section id="projects" class="py-20">
       <h2 class="text-sm font-bold uppercase tracking-widest text-indigo-500 mb-8">Selected Research & Projects</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a href="/projects/studymate" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
+      <!-- 三张卡共享行轨道（subgrid）：标题、正文、标签各占一条横带，每条取三张里最高的那张，
+           所以一行标题和两行标题的卡，正文和标签依然对齐。纵向间距交给卡片自己的内边距。 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6">
+        <a href="/projects/pseudo-positive-selection" class="group grid grid-rows-subgrid row-span-3 pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
+          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Pseudo-Positive Pair Selection</h3>
+          <p class="text-sm text-slate-400 mb-4">48 fine-tuning runs with volume-matched random controls, separating what pair selection adds from what a smaller dataset does alone.</p>
+          <span class="text-xs font-mono text-indigo-400">#PyTorch #contrastive #conformal</span>
+        </a>
+        <a href="/projects/hard-negatives" class="group grid grid-rows-subgrid row-span-3 pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
+          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Do Hard Negatives Always Help?</h3>
+          <p class="text-sm text-slate-400 mb-4">One-variable test with hand-written InfoNCE: random negatives lift NDCG@10 from 0.369 to 0.397 and beat BM25-hard ones in all 3 seeds.</p>
+          <span class="text-xs font-mono text-indigo-400">#PyTorch #InfoNCE #FiQA #retrieval</span>
+        </a>
+        <a href="/projects/studymate" class="group grid grid-rows-subgrid row-span-3 pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
           <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">StudyMate</h3>
           <p class="text-sm text-slate-400 mb-4">A RAG agent that answers from my lecture notes with citations and quizzes me on them — 96% Hit@4 on a reproducible retrieval eval.</p>
           <span class="text-xs font-mono text-indigo-400">#RAG #LangChain #Chroma #Evaluation</span>
-        </a>
-        <a href="/projects/loan-repayment" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
-          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Loan Default Prediction</h3>
-          <p class="text-sm text-slate-400 mb-4">A credit-risk pipeline benchmarking 9 classifiers with leakage-free CV, imbalance-strategy comparison, and SHAP interpretability.</p>
-          <span class="text-xs font-mono text-indigo-400">#scikit-learn #XGBoost #SHAP</span>
-        </a>
-        <a href="/projects/expense-tracker" class="group pt-5 pb-6 border-t border-slate-800 hover:border-indigo-400/70 transition">
-          <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-300 transition">Expense Tracker</h3>
-          <p class="text-sm text-slate-400 mb-4">An offline Android app that turns payment notifications into records — a 271-rule on-device lookup table in front of a local LLM, not behind it.</p>
-          <span class="text-xs font-mono text-indigo-400">#Android #Java #on-device-LLM #SQLite</span>
         </a>
       </div>
     </section>
@@ -93,7 +95,7 @@ const formatDate = (date: Date) =>
             >
               <time
                 datetime={post.data.date.toISOString().slice(0, 10)}
-                class="shrink-0 text-sm font-mono text-slate-500 w-32 whitespace-nowrap"
+                class="shrink-0 text-sm font-mono text-slate-450 w-32 whitespace-nowrap"
               >
                 {formatDate(post.data.date)}
               </time>

@@ -49,7 +49,7 @@ The naive "threshold vs all candidates" difference splits exactly into two parts
 ![The naive threshold-minus-all difference split into a volume part and a selection part](/projects/pseudo-positive-selection/volume_decomposition.png)
 
 | Dataset, budget | Threshold − all | Random − all | **Threshold − random** |
-|---|---:|---:|---|
+|---|---:|---:|---:|
 | nfcorpus, 1 epoch | +0.01220 | +0.00508 | **+0.00712** [0.00294, 0.01156] |
 | nfcorpus, 40 updates | +0.01095 | −0.00140 | **+0.01235** [0.00671, 0.01819] |
 | SciFact, 1 epoch | +0.00962 | +0.00496 | **+0.00466** [−0.00007, 0.00971] |

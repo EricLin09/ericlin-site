@@ -23,7 +23,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeC
       <p class="text-lg text-slate-400">Every topic on the site, weighted by how much I've written about it.</p>
     </section>
 
-    {tags.length === 0 && <p class="text-slate-500">No tags yet.</p>}
+    {tags.length === 0 && <p class="text-slate-450">No tags yet.</p>}
 
     <div class="flex gap-3 flex-wrap">
       {tags.map(([tag, count]) => (
@@ -32,7 +32,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeC
           class="group flex items-baseline gap-2 px-4 py-2 rounded-xl border border-slate-800 bg-slate-900/50 hover:border-indigo-500/50 transition"
         >
           <span class="font-mono text-sm text-indigo-400 group-hover:text-indigo-300 transition">#{tag}</span>
-          <span class="text-xs text-slate-500">{count}</span>
+          <span class="text-xs text-slate-450">{count}</span>
         </a>
       ))}
     </div>

@@ -36,14 +36,14 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
             href={`/tags/${tag}`}
             class="text-xs font-mono px-2.5 py-1 rounded-full border border-slate-700 text-slate-400 hover:border-indigo-500 hover:text-indigo-300 transition"
           >
-            #{tag} <span class="text-slate-600">{count}</span>
+            #{tag} <span class="text-slate-450">{count}</span>
           </a>
         ))}
       </div>
     )}
 
     {posts.length === 0 && (
-      <p class="text-slate-500">No posts yet.</p>
+      <p class="text-slate-450">No posts yet.</p>
     )}
 
     <ul class="space-y-2">
@@ -51,7 +51,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
         <li class="group flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 py-4 px-3 -mx-3 rounded-xl hover:bg-slate-900/60 transition">
           <time
             datetime={post.data.date.toISOString().slice(0, 10)}
-            class="shrink-0 text-sm font-mono text-slate-500 w-32 whitespace-nowrap"
+            class="shrink-0 text-sm font-mono text-slate-450 w-32 whitespace-nowrap"
           >
             {formatDate(post.data.date)}
           </time>

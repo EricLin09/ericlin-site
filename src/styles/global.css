@@ -69,3 +69,18 @@ article blockquote p::after {
     white-space: nowrap;
   }
 }
+
+/* slate-500 对 slate-950 只有 4.24:1，slate-600 只有 2.66:1，小字号都不过 WCAG AA 的 4.5:1。
+   直接改用 slate-400 会让日期、计数和正文描述一样亮，层级就没了。所以在两者之间取一个
+   刚好够用的点：纯背景 4.81:1，站内最亮的悬停背景（slate-900/60）上 4.51:1。 */
+@theme {
+  --color-slate-450: #6d7d94;
+}
+
+/* 键盘焦点。:focus-visible 只在键盘操作时出现，鼠标点击不会闪框；indigo-400 对背景 6.76:1。
+   :where() 让它权重为零，组件自己写了焦点样式的（如 StudyMate 演示的输入框）以组件为准。 */
+:where(a, button, summary, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-indigo-400);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
